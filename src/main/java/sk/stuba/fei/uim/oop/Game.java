@@ -1,5 +1,7 @@
 package sk.stuba.fei.uim.oop;
 
+import sk.stuba.fei.uim.oop.board.Board;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -10,6 +12,10 @@ public class Game {
         frame.setSize(800,800);
         frame.setResizable(false);
         frame.setFocusable(true);
+        frame.setLayout(new GridLayout(1,2));
+
+        frame.add(new Board());
+
 
         JPanel sideMenu = new JPanel();
         sideMenu.setBackground(Color.lightGray);
@@ -22,6 +28,8 @@ public class Game {
         sideMenu.add(comboBox);
         sideMenu.add(restartButton);
         sideMenu.add(checkPipeButton);
+        sideMenu.setLayout(new GridLayout(4,1));
+
         frame.add(sideMenu);
         frame.setVisible(true);
     }
