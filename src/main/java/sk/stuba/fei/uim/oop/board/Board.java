@@ -6,12 +6,12 @@ import java.util.*;
 import java.util.List;
 
 public class Board extends JPanel {
-
     private Tile[][] board;
     private Random random;
 
-    public Board() {
-        initializeBoard(8);
+    public Board(int dimension) {
+        initializeBoard(dimension);
+        this.setBorder(BorderFactory.createEmptyBorder(25,25,25,25));
     }
 
     private void initializeBoard(int dimension) {
@@ -25,7 +25,6 @@ public class Board extends JPanel {
             }
         }
         generatePipes();
-
     }
 
     public void generatePipes() {
@@ -40,12 +39,13 @@ public class Board extends JPanel {
 
         Tile startTile = this.board[startRow][startCol];
         int visitedCells = 1;
-        System.out.println("Start row " + startRow);
-        System.out.println("Start col " + startCol);
-        System.out.println("Final col " + finalCol);
+       // System.out.println("Start row " + startRow);
+        //System.out.println("Start col " + startCol);
+        //System.out.println("Final col " + finalCol);
 
         while (visitedCells < this.board.length * this.board.length) {
-            System.out.println("Row = " + startTile.row + " Col = " + startTile.col + "VisitedCells = " + visitedCells);
+            //
+            // System.out.println("Row = " + startTile.row + " Col = " + startTile.col + "VisitedCells = " + visitedCells);
             if (!visitedTiles.contains(startTile)){
                 visitedTiles.add(startTile);
             }
@@ -54,20 +54,20 @@ public class Board extends JPanel {
             }
 
             if (startTile.col == finalCol) {
-                System.out.println("Ending");
+                //System.out.println("Ending");
                 break;
             }
             List<Tile> unvisitedNeighbours = getUnvisited(startTile.row,startTile.col,visitedTiles);
             if (!unvisitedNeighbours.isEmpty()) {
-                System.out.println("Not empty");
+               // System.out.println("Not empty");
                 Tile neighbour = unvisitedNeighbours.get(this.random.nextInt(unvisitedNeighbours.size()));
                 startTile = neighbour;
                 visitedCells++;
             } else {
-                System.out.println("Deleting");
-                System.out.printf("Row1 = %d col1 = %d\n",pipesRoute.peek().row,pipesRoute.peek().col);
+                //System.out.println("Deleting");
+                //System.out.printf("Row1 = %d col1 = %d\n",pipesRoute.peek().row,pipesRoute.peek().col);
                 pipesRoute.pop();
-                System.out.printf("Row1 = %d col1 = %d\n",pipesRoute.peek().row,pipesRoute.peek().col);
+                //System.out.printf("Row1 = %d col1 = %d\n",pipesRoute.peek().row,pipesRoute.peek().col);
                 startTile = pipesRoute.peek();
             }
         }
@@ -75,7 +75,8 @@ public class Board extends JPanel {
         for (Tile tile : pipesRoute) {
             i++;
             JLabel m = new JLabel(String.valueOf(i));
-            tile.setBackground(Color.blue);
+            tile.setPlayable(true);
+            tile.setBackground(new Color(209, 209, 224));
             tile.add(m);
         }
     }
@@ -93,10 +94,10 @@ public class Board extends JPanel {
         if (y < this.board.length-1 && !visited.contains(this.board[x][y+1])) {
             unvisitedNeighbours.add(this.board[x][y+1]);
         }
-        System.out.println("Size = " + unvisitedNeighbours.size());
+       // System.out.println("Size = " + unvisitedNeighbours.size());
         Collections.shuffle(unvisitedNeighbours);
         for (Tile tile : unvisitedNeighbours) {
-            System.out.printf("Tile row = %d col = %d\n",tile.row,tile.col);
+         //   System.out.printf("Tile row = %d col = %d\n",tile.row,tile.col);
         }
         return unvisitedNeighbours;
     }

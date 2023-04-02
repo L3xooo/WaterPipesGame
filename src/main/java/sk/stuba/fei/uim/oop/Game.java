@@ -1,36 +1,56 @@
 package sk.stuba.fei.uim.oop;
 
-import sk.stuba.fei.uim.oop.board.Board;
+import sk.stuba.fei.uim.oop.controls.GameLogic;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class Game {
+public class Game{
     public Game() {
-        JFrame frame = new JFrame("WaterPipes");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800,800);
-        frame.setResizable(false);
-        frame.setFocusable(true);
-        frame.setLayout(new GridLayout(1,2));
 
-        frame.add(new Board());
+        JFrame gameWindow = new JFrame("WaterPipes");
+        gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gameWindow.setSize(800,500);
+        gameWindow.setResizable(false);
+        gameWindow.setFocusable(true);
+        gameWindow.getContentPane().setBackground(Color.CYAN);
+            
 
+        GameLogic gameLogic = new GameLogic(gameWindow);
+        gameWindow.addKeyListener(gameLogic);
+        gameWindow.requestFocusInWindow();
 
         JPanel sideMenu = new JPanel();
-        sideMenu.setBackground(Color.lightGray);
-        sideMenu.setLayout(new GridLayout());
+        sideMenu.setBackground(Color.LIGHT_GRAY);
+        sideMenu.setLayout(new BoxLayout(sideMenu,BoxLayout.Y_AXIS));
 
-        String[] boxSize = {"8x8","10x10","12x12"};
-        JComboBox<String> comboBox = new JComboBox<>(boxSize);
         JButton restartButton = new JButton("Restart");
-        JButton checkPipeButton = new JButton("Check");
-        sideMenu.add(comboBox);
+        restartButton.addActionListener(gameLogic);
+        restartButton.setFocusable(false);
+
+        JButton checkPipeButton = new JButton("Check pipes");
+        checkPipeButton.addActionListener(gameLogic);
+        checkPipeButton.setFocusable(false);
+
+        ButtonGroup boardSizeBtnGroup = new ButtonGroup();
+        JRadioButton radioButton1 = new JRadioButton("8x8");
+        JRadioButton radioButton2 = new JRadioButton("10x10");
+        JRadioButton radioButton3 = new JRadioButton("12x12");
+        boardSizeBtnGroup.add(radioButton1);
+        boardSizeBtnGroup.add(radioButton2);
+        boardSizeBtnGroup.add(radioButton3);
+        boardSizeBtnGroup.getElements().nextElement().addActionListener(gameLogic);
+        radioButton1.setSelected(true);
+
+        sideMenu.add(gameLogic.getCurrentLevelLabel());
+        sideMenu.add(gameLogic.getBoardSizeLabel());
+        sideMenu.add(radioButton1);
+        sideMenu.add(radioButton2);
+        sideMenu.add(radioButton3);
         sideMenu.add(restartButton);
         sideMenu.add(checkPipeButton);
-        sideMenu.setLayout(new GridLayout(4,1));
 
-        frame.add(sideMenu);
-        frame.setVisible(true);
+        gameWindow.add(sideMenu,BorderLayout.EAST);
+        gameWindow.setVisible(true);
     }
 }
