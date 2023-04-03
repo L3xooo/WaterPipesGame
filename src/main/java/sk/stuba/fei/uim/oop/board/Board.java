@@ -12,7 +12,9 @@ public class Board extends JPanel {
     public Board(int dimension) {
         initializeBoard(dimension);
         this.setBorder(BorderFactory.createEmptyBorder(25,25,25,25));
+        System.out.println("BorderSize = " + this.getSize());
     }
+
 
     private void initializeBoard(int dimension) {
         this.random = new Random();

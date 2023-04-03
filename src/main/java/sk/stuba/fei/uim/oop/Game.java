@@ -10,17 +10,20 @@ public class Game{
 
         JFrame gameWindow = new JFrame("WaterPipes");
         gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        gameWindow.setSize(800,500);
+        gameWindow.setSize(800,658+36);
         gameWindow.setResizable(false);
         gameWindow.setFocusable(true);
         gameWindow.getContentPane().setBackground(Color.CYAN);
-            
+
 
         GameLogic gameLogic = new GameLogic(gameWindow);
         gameWindow.addKeyListener(gameLogic);
         gameWindow.requestFocusInWindow();
 
         JPanel sideMenu = new JPanel();
+
+
+
         sideMenu.setBackground(Color.LIGHT_GRAY);
         sideMenu.setLayout(new BoxLayout(sideMenu,BoxLayout.Y_AXIS));
 
@@ -39,7 +42,9 @@ public class Game{
         boardSizeBtnGroup.add(radioButton1);
         boardSizeBtnGroup.add(radioButton2);
         boardSizeBtnGroup.add(radioButton3);
-        boardSizeBtnGroup.getElements().nextElement().addActionListener(gameLogic);
+        radioButton1.addActionListener(gameLogic);
+        radioButton2.addActionListener(gameLogic);
+        radioButton3.addActionListener(gameLogic);
         radioButton1.setSelected(true);
 
         sideMenu.add(gameLogic.getCurrentLevelLabel());
@@ -51,6 +56,9 @@ public class Game{
         sideMenu.add(checkPipeButton);
 
         gameWindow.add(sideMenu,BorderLayout.EAST);
+
+        System.out.println(gameWindow.getSize());
+        System.out.println(sideMenu.getSize());
         gameWindow.setVisible(true);
     }
 }
