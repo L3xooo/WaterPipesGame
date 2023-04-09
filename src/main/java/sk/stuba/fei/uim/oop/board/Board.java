@@ -1,22 +1,25 @@
 package sk.stuba.fei.uim.oop.board;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-
+@Setter @Getter
 public class Board extends JPanel {
     private Tile[][] board;
     private Random random;
 
+    private Stack<Tile> pipesRoute;
     public Board(int dimension) {
         initializeBoard(dimension);
         this.setBorder(BorderFactory.createEmptyBorder(25,25,25,25));
-        System.out.println("BorderSize = " + this.getSize());
     }
 
-
     private void initializeBoard(int dimension) {
+        this.pipesRoute = new Stack<>();
         this.random = new Random();
         this.board = new Tile[dimension][dimension];
         this.setLayout(new GridLayout(dimension,dimension));
@@ -27,59 +30,35 @@ public class Board extends JPanel {
             }
         }
         generatePipes();
+        setTileStatus();
     }
 
     public void generatePipes() {
-        Stack<Tile> pipesRoute = new Stack<>();
         List<Tile> visitedTiles = new ArrayList<>();
-
         int startRow = random.nextInt(this.board.length);
         boolean chooseNumber = random.nextBoolean();
-
         int startCol = chooseNumber ? 0 : this.board.length-1;
         int finalCol = chooseNumber ? this.board.length-1 : 0;
-
         Tile startTile = this.board[startRow][startCol];
         int visitedCells = 1;
-       // System.out.println("Start row " + startRow);
-        //System.out.println("Start col " + startCol);
-        //System.out.println("Final col " + finalCol);
-
         while (visitedCells < this.board.length * this.board.length) {
-            //
-            // System.out.println("Row = " + startTile.row + " Col = " + startTile.col + "VisitedCells = " + visitedCells);
             if (!visitedTiles.contains(startTile)){
                 visitedTiles.add(startTile);
             }
             if (!pipesRoute.contains(startTile)){
                 pipesRoute.push(startTile);
             }
-
             if (startTile.col == finalCol) {
-                //System.out.println("Ending");
                 break;
             }
             List<Tile> unvisitedNeighbours = getUnvisited(startTile.row,startTile.col,visitedTiles);
             if (!unvisitedNeighbours.isEmpty()) {
-               // System.out.println("Not empty");
-                Tile neighbour = unvisitedNeighbours.get(this.random.nextInt(unvisitedNeighbours.size()));
-                startTile = neighbour;
+                startTile = unvisitedNeighbours.get(this.random.nextInt(unvisitedNeighbours.size()));
                 visitedCells++;
             } else {
-                //System.out.println("Deleting");
-                //System.out.printf("Row1 = %d col1 = %d\n",pipesRoute.peek().row,pipesRoute.peek().col);
                 pipesRoute.pop();
-                //System.out.printf("Row1 = %d col1 = %d\n",pipesRoute.peek().row,pipesRoute.peek().col);
                 startTile = pipesRoute.peek();
             }
-        }
-        int i=0;
-        for (Tile tile : pipesRoute) {
-            i++;
-            JLabel m = new JLabel(String.valueOf(i));
-            tile.setPlayable(true);
-            tile.setBackground(new Color(209, 209, 224));
-            tile.add(m);
         }
     }
     public List<Tile> getUnvisited(int x, int y,List<Tile> visited) {
@@ -96,13 +75,60 @@ public class Board extends JPanel {
         if (y < this.board.length-1 && !visited.contains(this.board[x][y+1])) {
             unvisitedNeighbours.add(this.board[x][y+1]);
         }
-       // System.out.println("Size = " + unvisitedNeighbours.size());
         Collections.shuffle(unvisitedNeighbours);
-        for (Tile tile : unvisitedNeighbours) {
-         //   System.out.printf("Tile row = %d col = %d\n",tile.row,tile.col);
-        }
         return unvisitedNeighbours;
     }
 
+    public void setTileStatus() {
+        for (int a = 0; a < this.pipesRoute.size(); a++) {
+            Tile tile = this.pipesRoute.get(a);
+            if (pipesRoute.indexOf(tile) == 0) {
+                Tile nextTile = this.pipesRoute.get(1);
+                if (nextTile.getRow() != tile.getRow()) {
+                    tile.setTileStatus(TileStatus.L_PIPE);
+                    if (tile.getCol() == 0) {
+                        System.out.println("SA");
 
+                        if (nextTile.getRow() == tile.getRow()+1) {
+                            tile.setAngle(270);
+                        } else {
+                            tile.setAngle(0);
+                        }
+                    } else {
+                        System.out.println("SAs");
+
+                        if (nextTile.getRow() == tile.getRow()+1) {
+                            tile.setAngle(180);
+                        } else {
+                            tile.setAngle(90);
+                        }
+                    }
+                } else {
+                    tile.setTileStatus(TileStatus.PIPE);
+                }
+                tile.add(new JLabel("START"));
+                continue;
+            }
+            if (pipesRoute.indexOf(tile) == pipesRoute.size()-1) {
+                Tile prevTile = this.pipesRoute.get(pipesRoute.size()-2);
+                if (prevTile.getRow() != tile.getRow()) {
+                    tile.setTileStatus(TileStatus.L_PIPE);
+                } else {
+                    tile.setTileStatus(TileStatus.PIPE);
+                }
+                tile.add(new JLabel("END"));
+                continue;
+            }
+            Tile nextTile = this.pipesRoute.get(a+1);
+            Tile prevTile = this.pipesRoute.get(a-1);
+            tile.setPlayable(true);
+            if (nextTile.getRow() != prevTile.getRow() && nextTile.getCol() != prevTile.getCol()) {
+                tile.setAngle(tile.getRand().nextInt(2)*90);
+                tile.setTileStatus(TileStatus.L_PIPE);
+            } else {
+                tile.setAngle(tile.getRand().nextInt(2)*90);
+                tile.setTileStatus(TileStatus.PIPE);
+            }
+        }
+    }
 }

@@ -10,9 +10,10 @@ public class Game{
 
         JFrame gameWindow = new JFrame("WaterPipes");
         gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        gameWindow.setSize(800,658+36);
+        gameWindow.setSize(790,900);
         gameWindow.setResizable(false);
         gameWindow.setFocusable(true);
+        gameWindow.setLocationRelativeTo(null);
         gameWindow.getContentPane().setBackground(Color.CYAN);
 
 
@@ -23,9 +24,9 @@ public class Game{
         JPanel sideMenu = new JPanel();
 
 
-
         sideMenu.setBackground(Color.LIGHT_GRAY);
         sideMenu.setLayout(new BoxLayout(sideMenu,BoxLayout.Y_AXIS));
+        sideMenu.setLayout(new GridLayout(2,2));
 
         JButton restartButton = new JButton("Restart");
         restartButton.addActionListener(gameLogic);
@@ -34,6 +35,15 @@ public class Game{
         JButton checkPipeButton = new JButton("Check pipes");
         checkPipeButton.addActionListener(gameLogic);
         checkPipeButton.setFocusable(false);
+
+        JSlider slider = new JSlider(JSlider.HORIZONTAL,8,12,8);
+        slider.setFocusable(false);
+        slider.setMinorTickSpacing(2);
+        slider.setMajorTickSpacing(2);
+        slider.setSnapToTicks(true);
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+        slider.addChangeListener(gameLogic);
 
         ButtonGroup boardSizeBtnGroup = new ButtonGroup();
         JRadioButton radioButton1 = new JRadioButton("8x8");
@@ -48,14 +58,15 @@ public class Game{
         radioButton1.setSelected(true);
 
         sideMenu.add(gameLogic.getCurrentLevelLabel());
-        sideMenu.add(gameLogic.getBoardSizeLabel());
-        sideMenu.add(radioButton1);
+        sideMenu.add(slider);
+        //sideMenu.add(gameLogic.getBoardSizeLabel());
+        /*sideMenu.add(radioButton1);
         sideMenu.add(radioButton2);
         sideMenu.add(radioButton3);
-        sideMenu.add(restartButton);
+        */sideMenu.add(restartButton);
         sideMenu.add(checkPipeButton);
 
-        gameWindow.add(sideMenu,BorderLayout.EAST);
+        gameWindow.add(sideMenu,BorderLayout.SOUTH);
 
         System.out.println(gameWindow.getSize());
         System.out.println(sideMenu.getSize());

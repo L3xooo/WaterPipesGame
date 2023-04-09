@@ -1,8 +1,11 @@
 package sk.stuba.fei.uim.oop.controls;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.*;
 
-public class UniversalAdapter implements KeyListener, MouseListener, ActionListener {
+public class UniversalAdapter implements KeyListener, MouseListener, ActionListener, ChangeListener, MouseMotionListener {
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -45,6 +48,21 @@ public class UniversalAdapter implements KeyListener, MouseListener, ActionListe
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
 
     }
 }
