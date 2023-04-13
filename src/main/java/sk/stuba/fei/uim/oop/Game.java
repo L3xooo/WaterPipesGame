@@ -26,17 +26,16 @@ public class Game{
 
         sideMenu.setBackground(Color.LIGHT_GRAY);
         sideMenu.setLayout(new BoxLayout(sideMenu,BoxLayout.Y_AXIS));
-        sideMenu.setLayout(new GridLayout(2,2));
+        sideMenu.setLayout(new GridLayout(2,3));
 
         JButton restartButton = new JButton("Restart");
         restartButton.addActionListener(gameLogic);
         restartButton.setFocusable(false);
-
-        JButton checkPipeButton = new JButton("Check pipes");
+        JButton checkPipeButton = new JButton("Check");
         checkPipeButton.addActionListener(gameLogic);
         checkPipeButton.setFocusable(false);
 
-        JSlider slider = new JSlider(JSlider.HORIZONTAL,8,12,8);
+        JSlider slider = new JSlider(JSlider.HORIZONTAL,8,16,8);
         slider.setFocusable(false);
         slider.setMinorTickSpacing(2);
         slider.setMajorTickSpacing(2);
@@ -45,31 +44,12 @@ public class Game{
         slider.setPaintLabels(true);
         slider.addChangeListener(gameLogic);
 
-        ButtonGroup boardSizeBtnGroup = new ButtonGroup();
-        JRadioButton radioButton1 = new JRadioButton("8x8");
-        JRadioButton radioButton2 = new JRadioButton("10x10");
-        JRadioButton radioButton3 = new JRadioButton("12x12");
-        boardSizeBtnGroup.add(radioButton1);
-        boardSizeBtnGroup.add(radioButton2);
-        boardSizeBtnGroup.add(radioButton3);
-        radioButton1.addActionListener(gameLogic);
-        radioButton2.addActionListener(gameLogic);
-        radioButton3.addActionListener(gameLogic);
-        radioButton1.setSelected(true);
-
-        sideMenu.add(gameLogic.getCurrentLevelLabel());
+        sideMenu.add(gameLogic.getBoardSizeLabel());
+        sideMenu.add(restartButton);
         sideMenu.add(slider);
-        //sideMenu.add(gameLogic.getBoardSizeLabel());
-        /*sideMenu.add(radioButton1);
-        sideMenu.add(radioButton2);
-        sideMenu.add(radioButton3);
-        */sideMenu.add(restartButton);
+        sideMenu.add(gameLogic.getCurrentLevelLabel());
         sideMenu.add(checkPipeButton);
-
         gameWindow.add(sideMenu,BorderLayout.SOUTH);
-
-        System.out.println(gameWindow.getSize());
-        System.out.println(sideMenu.getSize());
         gameWindow.setVisible(true);
     }
 }

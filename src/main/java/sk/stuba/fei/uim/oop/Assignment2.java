@@ -5,3 +5,4 @@ public class Assignment2 {
         new Game();
     }
 }
+

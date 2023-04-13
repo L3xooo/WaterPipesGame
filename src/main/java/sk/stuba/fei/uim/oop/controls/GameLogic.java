@@ -13,10 +13,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 @Setter @Getter
-public class GameLogic extends UniversalAdapter{
-    public static final int INITIAL_BOARD_SIZE = 8;
+public class GameLogic extends UniversalAdapter {
+    private static final String RESTART_BUTTON_NAME = "Restart";
+    private static final String CHECK_BUTTON_NAME = "Check";
+    private static final int INITIAL_BOARD_SIZE = 8;
+    private static final int INITIAL_BOARD_LEVEL = 1;
     private JFrame gameWindow;
     private Board gameBoard;
     private int currentBoardSize;
@@ -27,13 +31,19 @@ public class GameLogic extends UniversalAdapter{
     public GameLogic(JFrame gameWindow) {
         this.gameWindow = gameWindow;
         this.currentBoardSize = INITIAL_BOARD_SIZE;
-
         this.initializeBoard(currentBoardSize);
         this.gameWindow.add(this.gameBoard);
-        this.currentLevel = 1;
+        this.currentLevel = INITIAL_BOARD_LEVEL;
         this.currentLevelLabel = new JLabel();
         this.boardSizeLabel = new JLabel();
         updateCurrentLevelLabel();
+        updateBoardSizeLabel();
+    }
+
+    private void updateBoardSizeLabel() {
+        this.boardSizeLabel.setText("Board size : " + currentBoardSize);
+        this.gameWindow.revalidate();
+        this.gameWindow.repaint();
     }
 
     private void updateCurrentLevelLabel() {
@@ -55,129 +65,351 @@ public class GameLogic extends UniversalAdapter{
         this.updateCurrentLevelLabel();
     }
 
-    private void checkPipes() {
-        int count = 0;
-        for (int a = 1; a < this.getGameBoard().getPipesRoute().size()-1; a++) {
-            Tile currentTile = this.getGameBoard().getPipesRoute().get(a);
-            Tile nextTile = this.getGameBoard().getPipesRoute().get(a+1);
-            Tile prevTile = this.getGameBoard().getPipesRoute().get(a-1);
-            if (currentTile.getTileStatus().equals(TileStatus.PIPE)) {
-                if ((currentTile.getRow() == nextTile.getRow()) && (currentTile.getRow() == prevTile.getRow())) {
-                    if (currentTile.getAngle() == 0) {
-                        currentTile.setBackground(Color.green);
-                        count++;
-                    } else {
-                        currentTile.setBackground(Color.red);
-                    }
-                }
-                if ((currentTile.getCol() == nextTile.getCol()) && (currentTile.getCol() == prevTile.getCol())) {
-                    if (currentTile.getAngle() == 90) {
-                        currentTile.setBackground(Color.green);
-                        count++;
-                    } else {
-                        currentTile.setBackground(Color.red);
-                    }
-                }
-            }
-
-
-            if (currentTile.getTileStatus().equals(TileStatus.L_PIPE)) {
-                if (prevTile.getRow() == currentTile.getRow()+1) {
-                    if (nextTile.getCol() == currentTile.getCol() + 1) {
-                        if (currentTile.getAngle() == 180) {
-                            currentTile.setBackground(Color.green);
-                            count++;
-                        } else {
-                            currentTile.setBackground(Color.red);
-                        }
-                    } else {
-                        if (currentTile.getAngle() == 270) {
-                            count++;
-                            currentTile.setBackground(Color.green);
-                        } else {
-                            currentTile.setBackground(Color.red);
-                        }
-                    }
-                    continue;
-                }
-                if (prevTile.getRow() == currentTile.getRow()-1) {
-                    if (nextTile.getCol() == currentTile.getCol() + 1) {
-                        if (currentTile.getAngle() == 90) {
-                            count++;
-                            currentTile.setBackground(Color.green);
-                        } else {
-                            currentTile.setBackground(Color.red);
-                        }
-                    } else {
-                        if (currentTile.getAngle() == 0) {
-                            count++;
-                            currentTile.setBackground(Color.green);
-                        } else {
-                            currentTile.setBackground(Color.red);
-                        }
-                    }
-                    continue;
-                }
-                if (prevTile.getCol() == currentTile.getCol()+1) {
-                    if (nextTile.getRow() == currentTile.getRow() + 1) {
-                        if (currentTile.getAngle() == 180) {
-                            count++;
-                            currentTile.setBackground(Color.green);
-                        } else {
-                            currentTile.setBackground(Color.red);
-                        }
-                    } else {
-                        if (currentTile.getAngle() == 90) {
-                            count++;
-                            currentTile.setBackground(Color.green);
-                        } else {
-                            currentTile.setBackground(Color.red);
-                        }
-                    }
-                    continue;
-                }
-                if (prevTile.getCol() == currentTile.getCol()-1) {
-                    if (nextTile.getRow() == currentTile.getRow() + 1) {
-                        if (currentTile.getAngle() == 270) {
-                            count++;
-                            currentTile.setBackground(Color.green);
-                        } else {
-                            currentTile.setBackground(Color.red);
-                        }
-                    } else {
-                        if (currentTile.getAngle() == 0) {
-                            count++;
-                            currentTile.setBackground(Color.green);
-                        } else {
-                            currentTile.setBackground(Color.red);
-                        }
-                    }
-                    continue;
-                }
-            }
-        }
-        if (count == this.getGameBoard().getPipesRoute().size()-2) {
-            this.setCurrentLevel(this.getCurrentLevel()+1);
-            restartGame();
+    public void paintValidTiles(ArrayList<Tile> validTiles) {
+        for (Tile tile : validTiles) {
+            tile.setBackground(Color.green);
         }
     }
 
+    private boolean checkPreviousPipe(Tile prevTile,ArrayList<Tile> validTiles,int angle) {
+        if (prevTile.getAngle() != angle) {
+            return false;
+        } else {
+            if (!validTiles.contains(prevTile)) {
+                validTiles.add(prevTile);
+            }
+            return true;
+        }
+    }
+
+    private boolean checkPreviousLPipe(Tile prevtile,ArrayList<Tile> validTiles,int angle1,int angle2) {
+        if (prevtile.getAngle() != angle1 && prevtile.getAngle() != angle2) {
+            return false;
+        } else {
+            if (!validTiles.contains(prevtile)) {
+                validTiles.add(prevtile);
+            }
+            return true;
+        }
+    }
+
+    private boolean checkActualPipe(Tile actualTile,int angle) {
+        if (actualTile.getAngle() != angle) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private boolean checkActualLPipe(Tile actualTile,int angle1,int angle2) {
+        if (actualTile.getAngle() != angle1 && actualTile.getAngle() != angle2) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private int checkDiv(int div,Tile prevTile,Tile actualTile,ArrayList<Tile> validTiles,int countInvalid) {
+            if (prevTile.getTileStatus().equals(TileStatus.PIPE)) {
+                if (!checkPreviousPipe(prevTile, validTiles, 90)) {
+                    countInvalid++;
+                } else {
+                    if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
+                        if (checkActualPipe(actualTile, 90)) {
+                            countInvalid = 0;
+                        } else {
+                            countInvalid++;
+                        }
+                    } else {
+                        if (div > 0) {
+                            if (checkActualLPipe(actualTile, 0, 90)) {
+                                countInvalid = 0;
+                            } else {
+                                countInvalid++;
+                            }
+                        } else {
+                            if (checkActualLPipe(actualTile, 180, 270)) {
+                                countInvalid = 0;
+                            } else {
+                                countInvalid++;
+                            }
+                        }
+                    }
+                }
+            } else if (prevTile.getTileStatus().equals(TileStatus.L_PIPE)) {
+                int expectedStartAngle = (div > 0) ? 180 : 0;
+                int expectedEndAngle = (div > 0) ? 270 : 90;
+
+                if (!checkPreviousLPipe(prevTile,validTiles,expectedStartAngle,expectedEndAngle)) {
+                    countInvalid++;
+                } else {
+                    if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
+                        if (checkActualPipe(actualTile,90)) {
+                            countInvalid = 0;
+                        } else {
+                            countInvalid++;
+                        }
+                    } else {
+                        int expectedLPipeStartAngle = (div > 0) ? 0 : 180;
+                        int expectedLPipeEndAngle = (div > 0) ? 90 : 270;
+                        if (checkActualLPipe(actualTile,expectedLPipeStartAngle,expectedLPipeEndAngle)) {
+                            countInvalid = 0;
+                        } else {
+                            countInvalid++;
+                        }
+                    }
+                }
+
+             /*   if (div > 0) {
+                    if (!checkPreviousLPipe(prevTile,validTiles,180,270)) {
+                        countInvalid++;
+                    } else {
+                        if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
+                            if (checkActualPipe(actualTile,90)) {
+                                countInvalid = 0;
+                            } else {
+                                countInvalid++;
+                            }
+                        } else {
+                            if (checkActualLPipe(actualTile,0,90)) {
+                                countInvalid = 0;
+                            } else {
+                                countInvalid++;
+                            }
+                        }
+                    }
+                } else {
+                    if (!checkPreviousLPipe(prevTile,validTiles,0,90)) {
+                        countInvalid++;
+                    } else {
+                        if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
+                            if (checkActualPipe(actualTile,90)) {
+                                countInvalid = 0;
+                            } else {
+                                countInvalid++;
+                            }
+                        } else {
+                            if (checkActualLPipe(actualTile,180,270)) {
+                                countInvalid = 0;
+                            } else {
+                                countInvalid++;
+                            }
+                        }
+                    }
+                }*/
+            }
+        System.out.println(countInvalid);
+        return countInvalid;
+    }
+    private void test() {
+        ArrayList<Tile> validTiles = new ArrayList<>();
+        Tile prevTile = this.getGameBoard().getStartTile();
+        int countInvalid;
+        while (true) {
+            if (prevTile == this.getGameBoard().getEndTile()) {
+                setCurrentLevel(this.getCurrentLevel()+1);
+                restartGame();
+            }
+            countInvalid = 0;
+            for (Tile actualTile : prevTile.getNeighbours()) {
+                if (validTiles.contains(actualTile)) {
+                    countInvalid++;
+                    continue;
+                }
+                int divRow = actualTile.getRow() - prevTile.getRow();
+                int divCol = actualTile.getCol() - prevTile.getCol();
+                if (divRow != 0) {
+                    countInvalid = checkDiv(divRow,prevTile,actualTile,validTiles,countInvalid);
+                    System.out.println(countInvalid);
+                    if (countInvalid == 0) {
+                        prevTile = actualTile;
+                        break;
+                    }
+
+                    /*if (prevTile.getTileStatus().equals(TileStatus.PIPE)) {
+                        if (!checkPreviousPipe(prevTile,validTiles,90)) {
+                            countInvalid++;
+                        } else {
+                            if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
+                                if (checkActualPipe(actualTile,90)) {
+                                    countInvalid = 0;
+                                    prevTile = actualTile;
+                                    break;
+                                } else {
+                                    countInvalid++;
+                                }
+                            } else {
+                                if (divRow > 0) {
+                                    if(checkActualLPipe(actualTile,0,90)) {
+                                        prevTile = actualTile;
+                                        countInvalid = 0;
+                                        break;
+                                    } else {
+                                        countInvalid++;
+                                    }
+                                } else {
+                                    if (checkActualLPipe(actualTile,180,270)) {
+                                        prevTile = actualTile;
+                                        countInvalid = 0;
+                                        break;
+                                    } else {
+                                        countInvalid++;
+                                    }
+                                }
+                            }
+                        }
+                    } else if (prevTile.getTileStatus().equals(TileStatus.L_PIPE)) {
+                        if (divRow > 0) {
+                            if(!checkPreviousLPipe(prevTile,validTiles,180,270)) {
+                                countInvalid++;
+                            } else {
+                                if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
+                                    if (checkActualPipe(actualTile,90)) {
+                                        prevTile = actualTile;
+                                        countInvalid = 0;
+                                        break;
+                                    } else {
+                                        countInvalid++;
+                                    }
+                                } else {
+                                    if (checkActualLPipe(actualTile,0,90)) {
+                                        prevTile = actualTile;
+                                        countInvalid = 0;
+                                        break;
+                                    } else {
+                                        countInvalid++;
+                                    }
+                                }
+                            }
+                        } else {
+                            if (!checkPreviousLPipe(prevTile,validTiles,0,90)) {
+                                countInvalid++;
+                            } else {
+                                if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
+                                    if (checkActualPipe(actualTile,90)) {
+                                        prevTile = actualTile;
+                                        countInvalid = 0;
+                                        break;
+                                    } else {
+                                        countInvalid++;
+                                    }
+                                } else {
+                                    if (checkActualLPipe(actualTile,180,270)) {
+                                        countInvalid = 0;
+                                        prevTile = actualTile;
+                                        break;
+                                    } else {
+                                        countInvalid++;
+                                    }
+                                }
+                            }
+                        }
+                    }*/
+                } else if (divCol != 0) {
+                    if (prevTile.getTileStatus().equals(TileStatus.PIPE)) {
+                        if (!checkPreviousPipe(prevTile,validTiles,0)) {
+                            countInvalid++;
+                        } else {
+                            if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
+                                if (checkActualPipe(actualTile,0)) {
+                                    countInvalid = 0;
+                                    prevTile = actualTile;
+                                    break;
+                                } else {
+                                    countInvalid++;
+                                }
+                            } else {
+                                if (divCol > 0) {
+                                    if(checkActualLPipe(actualTile,0,270)) {
+                                        prevTile = actualTile;
+                                        countInvalid = 0;
+                                        break;
+                                    } else {
+                                        countInvalid++;
+                                    }
+                                } else {
+                                    if (checkActualLPipe(actualTile,90,180)) {
+                                        prevTile = actualTile;
+                                        countInvalid = 0;
+                                        break;
+                                    } else {
+                                        countInvalid++;
+                                    }
+                                }
+                            }
+                        }
+                    } else if (prevTile.getTileStatus().equals(TileStatus.L_PIPE)) {
+                        if (divCol > 0) {
+                            if(!checkPreviousLPipe(prevTile,validTiles,90,180)) {
+                                countInvalid++;
+                            } else {
+                                if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
+                                    if (checkActualPipe(actualTile,0)) {
+                                        countInvalid = 0;
+                                        prevTile = actualTile;
+                                        break;
+                                    } else {
+                                        countInvalid++;
+                                    }
+                                } else {
+                                    if (checkActualLPipe(actualTile,0,270)) {
+                                        prevTile = actualTile;
+                                        countInvalid = 0;
+                                        break;
+                                    } else {
+                                        countInvalid++;
+                                    }
+                                }
+                            }
+                        } else {
+                            if (!checkPreviousLPipe(prevTile,validTiles,0,270)) {
+                                countInvalid++;
+                            } else {
+                                if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
+                                    if (checkActualPipe(actualTile,0)) {
+                                        prevTile = actualTile;
+                                        countInvalid = 0;
+                                        break;
+                                    } else {
+                                        countInvalid++;
+                                    }
+                                } else {
+                                    if (checkActualLPipe(actualTile,180,90)) {
+                                        prevTile = actualTile;
+                                        countInvalid = 0;
+                                        break;
+                                    } else {
+                                        countInvalid++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (countInvalid == prevTile.getNeighbours().size()) {
+                if (!validTiles.contains(prevTile)) {
+                    validTiles.add(prevTile);
+                }
+                paintValidTiles(validTiles);
+                break;
+            }
+        }
+    }
     @Override
     public void keyPressed(KeyEvent e) {
         if(e.getKeyCode() == KeyEvent.VK_R) {
-            System.out.println("Key R was pressed, restarting game!");
-            this.setCurrentLevel(1);
+            this.setCurrentLevel(INITIAL_BOARD_LEVEL);
             restartGame();
             this.getGameWindow().revalidate();
             this.getGameWindow().repaint();
         }
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            System.out.println("Key Esc was pressed, quiting the game!");
             this.getGameWindow().dispose();
         }
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            System.out.println("Key Enter was pressed, checking the pipes!");
-            checkPipes();
+            test();
         }
     }
 
@@ -185,16 +417,14 @@ public class GameLogic extends UniversalAdapter{
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if (source instanceof JButton) {
-            if (((JButton) source).getText().equals("Restart")) {
-                System.out.println("RestartButton restarting the game!");
-                this.setCurrentLevel(1);
+            if (((JButton) source).getText().equals(RESTART_BUTTON_NAME)) {
+                this.setCurrentLevel(INITIAL_BOARD_LEVEL);
                 restartGame();
                 this.getGameWindow().revalidate();
                 this.getGameWindow().repaint();
             }
-            if (((JButton) source).getText().equals("Check pipes")) {
-                System.out.println("Check pipe button, checking pipes!");
-                checkPipes();
+            if (((JButton) source).getText().equals(CHECK_BUTTON_NAME)) {
+                test();
             }
         }
     }
@@ -203,27 +433,34 @@ public class GameLogic extends UniversalAdapter{
     public void mouseMoved(MouseEvent e) {
         Component currentComponent = this.getGameBoard().getComponentAt(e.getX(),e.getY());
         if (!(currentComponent instanceof Tile)) {
-            return;
-        }
-        if (((Tile) currentComponent).isPlayable()) {
+            for (Component component : this.getGameBoard().getComponents()) {
+                if (component instanceof Tile) {
+                    ((Tile) component).setHover(false);
+                }
+            }
+        } else {
             ((Tile) currentComponent).setHover(true);
+            for (Component component : this.getGameBoard().getComponents()) {
+                if (component instanceof Tile) {
+                    if (component != currentComponent) {
+                        ((Tile) component).setHover(false);
+                    }
+                }
+            }
         }
         this.getGameBoard().repaint();
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println("klikam");
+        this.getGameBoard().deleteBackgroundColor();
         Component currentComponent = this.getGameBoard().getComponentAt(e.getX(),e.getY());
         if (!(currentComponent instanceof Tile)) {
             return;
         }
         if (((Tile) currentComponent).isPlayable()) {
-            System.out.println("PREd zmemnou = " + ((Tile) currentComponent).getAngle());
             ((Tile) currentComponent).increaseAngle();
             currentComponent.repaint();
-            System.out.println("Po zmene " + ((Tile) currentComponent).getAngle());
-
         }
     }
 
@@ -231,6 +468,7 @@ public class GameLogic extends UniversalAdapter{
     public void stateChanged(ChangeEvent e) {
         if (this.getCurrentBoardSize() != ((JSlider) e.getSource()).getValue()) {
             this.setCurrentBoardSize(((JSlider) e.getSource()).getValue());
+            this.updateBoardSizeLabel();
             this.setCurrentLevel(1);
             this.restartGame();
         }
