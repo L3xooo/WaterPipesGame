@@ -30,19 +30,17 @@ public class Tile extends JPanel{
         this.rand = new Random();
         this.angle = 0;
     }
-
     public void increaseAngle() {
         this.angle = (this.angle + 90) % (this.tileStatus == TileStatus.PIPE ? 180 : 360);
     }
-
-    public void drawStraightPipe(Graphics g) {
+    private void drawStraightPipe(Graphics g) {
         g.setColor(Color.BLACK);
         g.fillRect(0,this.getHeight()/3-5,5,this.getHeight()/3+10);
         g.fillRect(this.getWidth()-5,this.getHeight()/3-5,5,this.getHeight()/3+10);
         g.setColor(new Color(61, 62, 64));
         g.fillRect(5,this.getHeight()/3,this.getWidth()-10,this.getHeight()/3);
     }
-    public void drawLPipe(Graphics g) {
+    private void drawLPipe(Graphics g) {
         g.setColor(Color.BLACK);
         g.fillRect(0,this.getHeight()/3-5,5,this.getHeight()/3+10);
         g.fillRect(getWidth()/3-5,0,this.getWidth()/3+10,5);
@@ -56,11 +54,10 @@ public class Tile extends JPanel{
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         if (this.isHover()) {
-            this.setBorder(BorderFactory.createLineBorder(new Color(107, 74, 171),2));
+            this.setBorder(BorderFactory.createLineBorder(Color.red,2));
         } else {
             this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         }
-
         if (this.getTileStatus().equals(TileStatus.L_PIPE) || this.getTileStatus().equals(TileStatus.PIPE)) {
             g2d.rotate(Math.toRadians(this.getAngle()),(double) getWidth()/2,(double) getHeight()/2);
             if (this.getTileStatus().equals(TileStatus.PIPE)) {

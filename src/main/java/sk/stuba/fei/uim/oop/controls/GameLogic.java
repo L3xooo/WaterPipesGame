@@ -94,135 +94,68 @@ public class GameLogic extends UniversalAdapter {
     }
 
     private boolean checkActualPipe(Tile actualTile,int angle) {
-        if (actualTile.getAngle() != angle) {
-            return false;
-        } else {
-            return true;
-        }
+        return actualTile.getAngle() == angle;
     }
 
     private boolean checkActualLPipe(Tile actualTile,int angle1,int angle2) {
-        if (actualTile.getAngle() != angle1 && actualTile.getAngle() != angle2) {
-            return false;
-        } else {
-            return true;
-        }
+        return actualTile.getAngle() == angle1 || actualTile.getAngle() == angle2;
     }
 
-    private int checkDiv2(int div,Tile prevTile,Tile actualTile,ArrayList<Tile> validTiles,int countInvalid) {
-        if (prevTile.getTileStatus().equals(TileStatus.PIPE)) {
-            if (!checkPreviousPipe(prevTile, validTiles, 0)) {
-                countInvalid++;
-            } else {
-                if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
-                    if (checkActualPipe(actualTile, 0)) {
-                        countInvalid = 0;
-                    } else {
-                        countInvalid++;
-                    }
-                } else {
-                    int expectedLPipeStartAngle = (div > 0) ? 0 : 90; // 0 90
-                    int expectedLPipeEndAngle = (div > 0) ? 270 : 180;  //270 180
-                    if (checkActualLPipe(actualTile,expectedLPipeStartAngle,expectedLPipeEndAngle)) {
-                        countInvalid = 0;
-                    } else {
-                        countInvalid++;
-                    }
-                }
-            }
-        } else if (prevTile.getTileStatus().equals(TileStatus.L_PIPE)) {
-            int expectedStartAngle = (div > 0) ? 90 : 0;
-            int expectedEndAngle = (div > 0) ? 180 : 270;
-            if (!checkPreviousLPipe(prevTile,validTiles,expectedStartAngle,expectedEndAngle)) {
-                countInvalid++;
-            } else {
-                if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
-                    if (checkActualPipe(actualTile,0)) {
-                        countInvalid = 0;
-                    } else {
-                        countInvalid++;
-                    }
-                } else {
-                    int expectedLPipeStartAngle = (div > 0) ? 0 : 180;
-                    int expectedLPipeEndAngle = (div > 0) ? 270 : 90;
-                    if (checkActualLPipe(actualTile,expectedLPipeStartAngle,expectedLPipeEndAngle)) {
-                        countInvalid = 0;
-                    } else {
-                        countInvalid++;
-                    }
-                }
-            }
-        }
-        return countInvalid;
-    }
-
-    private int checkDiv(int div,Tile prevTile,Tile actualTile,ArrayList<Tile> validTiles,int countInvalid) {
+    private int checkConnection(Tile prevTile,Tile actualTile,ArrayList<Tile> validTiles,int countInvalid) {
         int divRow = actualTile.getRow() - prevTile.getRow();
         int divCol = actualTile.getCol() - prevTile.getCol();
-        int straightPipeAngle = 0;
-        int angle1 = 0;
-        int angle2 = 0;
+        int straightPipeAngle;
+        int angle1;
+        int angle2;
+        int div;
         if (divRow != 0) {
             div = divRow;
-            System.out.println("DivRow");
             straightPipeAngle = 90;
             angle1 = 90;
             angle2 = 270;
-        }
-        if (divCol != 0) {
+        } else {
             div = divCol;
-            System.out.println("DivCol");
             straightPipeAngle = 0;
             angle1 = 270;
             angle2 = 90;
         }
+
         if (prevTile.getTileStatus().equals(TileStatus.PIPE)) {
-                if (!checkPreviousPipe(prevTile, validTiles, straightPipeAngle)) {
-                    countInvalid++;
+            if (!checkPreviousPipe(prevTile, validTiles, straightPipeAngle)) {
+                countInvalid++;
+            } else {
+                if(checkActualTileStatus(actualTile,div,straightPipeAngle,angle1,angle2)) {
+                    countInvalid = 0;
                 } else {
-                    if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
-                        if (checkActualPipe(actualTile, straightPipeAngle)) {
-                            countInvalid = 0;
-                        } else {
-                            countInvalid++;
-                        }
-                    } else { //rovnaka 0, 180
-                        int expectedLPipeStartAngle = (div > 0) ? 0 : 180; // 0 90
-                        int expectedLPipeEndAngle = (div > 0) ? angle1 : angle2;  //270 180
-                        if (checkActualLPipe(actualTile,expectedLPipeStartAngle,expectedLPipeEndAngle)) {
-                            countInvalid = 0;
-                        } else {
-                            countInvalid++;
-                        }
-                    }
-                } //180,0
-            } else if (prevTile.getTileStatus().equals(TileStatus.L_PIPE)) {
-                int expectedStartAngle = (div > 0) ? 180 : 0;
-                int expectedEndAngle = (div > 0) ? angle2 : angle1;
-                if (!checkPreviousLPipe(prevTile,validTiles,expectedStartAngle,expectedEndAngle)) {
                     countInvalid++;
-                } else {
-                    if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
-                        if (checkActualPipe(actualTile,straightPipeAngle)) {
-                            countInvalid = 0;
-                        } else {
-                            countInvalid++;
-                        }
-                    } else { //0 180
-                        int expectedLPipeStartAngle = (div > 0) ? 0 : 180;
-                        int expectedLPipeEndAngle = (div > 0) ? angle1 : angle2;
-                        if (checkActualLPipe(actualTile,expectedLPipeStartAngle,expectedLPipeEndAngle)) {
-                            countInvalid = 0;
-                        } else {
-                            countInvalid++;
-                        }
-                    }
                 }
             }
+        } else if (prevTile.getTileStatus().equals(TileStatus.L_PIPE)) {
+            int expectedStartAngle = (div > 0) ? 180 : 0;
+            int expectedEndAngle = (div > 0) ? angle2 : angle1;
+            if (!checkPreviousLPipe(prevTile,validTiles,expectedStartAngle,expectedEndAngle)) {
+                countInvalid++;
+            } else {
+                if(checkActualTileStatus(actualTile,div,straightPipeAngle,angle1,angle2)) {
+                    countInvalid = 0;
+                } else {
+                    countInvalid++;
+                }
+            }
+        }
         return countInvalid;
     }
 
-    private void test() {
+    private boolean checkActualTileStatus(Tile actualTile,int div,int straightPipeAngle,int angle1,int angle2) {
+        if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
+            return checkActualPipe(actualTile, straightPipeAngle);
+        } else {
+            int expectedLPipeStartAngle = (div > 0) ? 0 : 180;
+            int expectedLPipeEndAngle = (div > 0) ? angle1 : angle2;
+            return checkActualLPipe(actualTile, expectedLPipeStartAngle, expectedLPipeEndAngle);
+        }
+    }
+    private void checkPipes() {
         ArrayList<Tile> validTiles = new ArrayList<>();
         Tile prevTile = this.getGameBoard().getStartTile();
         int countInvalid;
@@ -237,113 +170,12 @@ public class GameLogic extends UniversalAdapter {
                     countInvalid++;
                     continue;
                 }
-                int divRow = actualTile.getRow() - prevTile.getRow();
-                int divCol = actualTile.getCol() - prevTile.getCol();
-                countInvalid = checkDiv(divRow,prevTile,actualTile,validTiles,countInvalid);
+                countInvalid = checkConnection(prevTile,actualTile,validTiles,countInvalid);
                 if (countInvalid == 0) {
                     prevTile = actualTile;
                     break;
                 }
-
-                /*
-                if (divRow != 0) {
-                    countInvalid = checkDiv(divRow,prevTile,actualTile,validTiles,countInvalid);
-                    System.out.println(countInvalid);
-                    if (countInvalid == 0) {
-                        prevTile = actualTile;
-                        break;
-                    }
-
-                } else if (divCol != 0) {
-                    countInvalid = checkDiv2(divCol,prevTile,actualTile,validTiles,countInvalid);
-                    System.out.println(countInvalid);
-                    if (countInvalid == 0) {
-                        prevTile = actualTile;
-                        break;
-                    }
-*/
-                    /*if (prevTile.getTileStatus().equals(TileStatus.PIPE)) {
-                        if (!checkPreviousPipe(prevTile,validTiles,0)) {
-                            countInvalid++;
-                        } else {
-                            if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
-                                if (checkActualPipe(actualTile,0)) {
-                                    countInvalid = 0;
-                                    prevTile = actualTile;
-                                    break;
-                                } else {
-                                    countInvalid++;
-                                }
-                            } else {
-                                if (divCol > 0) {
-                                    if(checkActualLPipe(actualTile,0,270)) {
-                                        prevTile = actualTile;
-                                        countInvalid = 0;
-                                        break;
-                                    } else {
-                                        countInvalid++;
-                                    }
-                                } else {
-                                    if (checkActualLPipe(actualTile,90,180)) {
-                                        prevTile = actualTile;
-                                        countInvalid = 0;
-                                        break;
-                                    } else {
-                                        countInvalid++;
-                                    }
-                                }
-                            }
-                        }
-                    } else if (prevTile.getTileStatus().equals(TileStatus.L_PIPE)) {
-                        if (divCol > 0) {
-                            if(!checkPreviousLPipe(prevTile,validTiles,90,180)) {
-                                countInvalid++;
-                            } else {
-                                if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
-                                    if (checkActualPipe(actualTile,0)) {
-                                        countInvalid = 0;
-                                        prevTile = actualTile;
-                                        break;
-                                    } else {
-                                        countInvalid++;
-                                    }
-                                } else {
-                                    if (checkActualLPipe(actualTile,0,270)) {
-                                        prevTile = actualTile;
-                                        countInvalid = 0;
-                                        break;
-                                    } else {
-                                        countInvalid++;
-                                    }
-                                }
-                            }
-                        } else {
-                            if (!checkPreviousLPipe(prevTile,validTiles,0,270)) {
-                                countInvalid++;
-                            } else {
-                                if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
-                                    if (checkActualPipe(actualTile,0)) {
-                                        prevTile = actualTile;
-                                        countInvalid = 0;
-                                        break;
-                                    } else {
-                                        countInvalid++;
-                                    }
-                                } else {
-                                    if (checkActualLPipe(actualTile,180,90)) {
-                                        prevTile = actualTile;
-                                        countInvalid = 0;
-                                        break;
-                                    } else {
-                                        countInvalid++;
-                                    }
-                                }
-                            }
-                        }
-                    }*/
-               // }
             }
-
             if (countInvalid == prevTile.getNeighbours().size()) {
                 if (!validTiles.contains(prevTile)) {
                     validTiles.add(prevTile);
@@ -365,10 +197,9 @@ public class GameLogic extends UniversalAdapter {
             this.getGameWindow().dispose();
         }
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            test();
+            checkPipes();
         }
     }
-
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
@@ -380,11 +211,10 @@ public class GameLogic extends UniversalAdapter {
                 this.getGameWindow().repaint();
             }
             if (((JButton) source).getText().equals(CHECK_BUTTON_NAME)) {
-                test();
+                checkPipes();
             }
         }
     }
-
     @Override
     public void mouseMoved(MouseEvent e) {
         Component currentComponent = this.getGameBoard().getComponentAt(e.getX(),e.getY());
@@ -406,7 +236,6 @@ public class GameLogic extends UniversalAdapter {
         }
         this.getGameBoard().repaint();
     }
-
     @Override
     public void mouseClicked(MouseEvent e) {
         this.getGameBoard().deleteBackgroundColor();
@@ -419,7 +248,6 @@ public class GameLogic extends UniversalAdapter {
             currentComponent.repaint();
         }
     }
-
     @Override
     public void stateChanged(ChangeEvent e) {
         if (this.getCurrentBoardSize() != ((JSlider) e.getSource()).getValue()) {

@@ -1,4 +1,4 @@
-package sk.stuba.fei.uim.oop;
+package sk.stuba.fei.uim.oop.gui;
 
 import sk.stuba.fei.uim.oop.controls.GameLogic;
 
@@ -7,7 +7,6 @@ import java.awt.*;
 
 public class Game{
     public Game() {
-
         JFrame gameWindow = new JFrame("WaterPipes");
         gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gameWindow.setSize(790,900);
@@ -16,14 +15,11 @@ public class Game{
         gameWindow.setLocationRelativeTo(null);
         gameWindow.getContentPane().setBackground(Color.CYAN);
 
-
         GameLogic gameLogic = new GameLogic(gameWindow);
         gameWindow.addKeyListener(gameLogic);
         gameWindow.requestFocusInWindow();
 
         JPanel sideMenu = new JPanel();
-
-
         sideMenu.setBackground(Color.LIGHT_GRAY);
         sideMenu.setLayout(new BoxLayout(sideMenu,BoxLayout.Y_AXIS));
         sideMenu.setLayout(new GridLayout(2,3));

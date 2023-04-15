@@ -45,7 +45,7 @@ public class Board extends JPanel {
         setNeighbours();
     }
 
-    public void generatePipes() {
+    private void generatePipes() {
         List<Tile> visitedTiles = new ArrayList<>();
         int startRow = getRandom().nextInt(this.getBoard().length);
         boolean chooseNumber = getRandom().nextBoolean();
@@ -59,8 +59,8 @@ public class Board extends JPanel {
             if (!visitedTiles.contains(startTile)){
                 visitedTiles.add(startTile);
             }
-            if (!pipesRoute.contains(startTile)){ //nasiel novu ktora este nie je  vceste
-                pipesRoute.push(startTile);
+            if (!this.getPipesRoute().contains(startTile)){
+                this.getPipesRoute().push(startTile);
             }
             if (startTile.getCol() == finalCol) {
                 setEndTile(startTile);
@@ -68,15 +68,15 @@ public class Board extends JPanel {
             }
             List<Tile> unvisitedNeighbours = getUnvisited(startTile.getRow(), startTile.getCol(),visitedTiles);
             if (!unvisitedNeighbours.isEmpty()) {
-                startTile = unvisitedNeighbours.get(this.random.nextInt(unvisitedNeighbours.size()));
+                startTile = unvisitedNeighbours.get(this.getRandom().nextInt(unvisitedNeighbours.size()));
                 visitedCells++;
             } else {
-                pipesRoute.pop(); //cuva
-                startTile = pipesRoute.peek(); //setnes novu
+                this.getPipesRoute().pop();
+                startTile = this.getPipesRoute().peek();
             }
         }
     }
-    public List<Tile> getUnvisited(int x, int y,List<Tile> visited) {
+    private List<Tile> getUnvisited(int x, int y,List<Tile> visited) {
         List<Tile> unvisitedNeighbours = new ArrayList<>();
         if (x > 0 && !visited.contains(this.getBoard()[x-1][y])) {
             unvisitedNeighbours.add(this.getBoard()[x-1][y]);
@@ -94,7 +94,7 @@ public class Board extends JPanel {
         return unvisitedNeighbours;
     }
 
-    public void setNeighbours() {
+    private void setNeighbours() {
         for (int a = 0; a < this.getPipesRoute().size(); a++) {
             Tile tile = this.getPipesRoute().get(a);
             if (tile.getRow() > 0 && !this.getBoard()[tile.getRow()-1][tile.getCol()].getTileStatus().equals(TileStatus.EMPTY)) {
@@ -121,7 +121,7 @@ public class Board extends JPanel {
         }
     }
 
-    public void setTileStatus() {
+    private void setTileStatus() {
         for (int a = 0; a < this.getPipesRoute().size()-1; a++) {
             Tile tile = this.getPipesRoute().get(a);
             if (this.getPipesRoute().indexOf(tile) == 0) {
