@@ -13,6 +13,7 @@ import java.util.Random;
 public class Tile extends JPanel{
     private boolean playable;
     private boolean hover;
+    private boolean validTile;
     private final int row;
     private final int col;
     private final Random rand;
@@ -20,6 +21,7 @@ public class Tile extends JPanel{
     private TileStatus tileStatus;
     private final List<Tile> neighbours;
     public Tile(int row, int col){
+        this.validTile = false;
         this.neighbours = new ArrayList<>();
         this.tileStatus = TileStatus.EMPTY;
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -33,37 +35,45 @@ public class Tile extends JPanel{
     public void increaseAngle() {
         this.angle = (this.angle + 90) % (this.tileStatus == TileStatus.PIPE ? 180 : 360);
     }
-    private void drawStraightPipe(Graphics g) {
-        g.setColor(Color.BLACK);
+    private void drawStraightPipe(Graphics g,Color primaryColor,Color secondaryColor) {
+        g.setColor(secondaryColor);
         g.fillRect(0,this.getHeight()/3-5,5,this.getHeight()/3+10);
         g.fillRect(this.getWidth()-5,this.getHeight()/3-5,5,this.getHeight()/3+10);
-        g.setColor(new Color(61, 62, 64));
+        g.setColor(primaryColor);
         g.fillRect(5,this.getHeight()/3,this.getWidth()-10,this.getHeight()/3);
     }
-    private void drawLPipe(Graphics g) {
-        g.setColor(Color.BLACK);
+    private void drawLPipe(Graphics g,Color primaryColor,Color secondaryColor) {
+        g.setColor(secondaryColor);
         g.fillRect(0,this.getHeight()/3-5,5,this.getHeight()/3+10);
         g.fillRect(getWidth()/3-5,0,this.getWidth()/3+10,5);
         int[] x = {5,getWidth()/3,getWidth()/3,getWidth()/3*2,getWidth()/3*2,5,5};
         int[] y = {getHeight()/3,getHeight()/3,5,5,getHeight()/3*2,getHeight()/3*2,getHeight()/3};
-        g.setColor(new Color(61, 62, 64));
+        g.setColor(primaryColor);
         g.fillPolygon(x,y,7);
     }
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        Color primaryColor;
+        Color secondaryColor;
         Graphics2D g2d = (Graphics2D) g;
         if (this.isHover()) {
             this.setBorder(BorderFactory.createLineBorder(Color.red,2));
         } else {
             this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         }
+        if (this.isValidTile()) {
+            primaryColor = Color.blue;
+        } else {
+            primaryColor = new Color(73, 70, 70, 255);
+        }
+        secondaryColor = Color.BLACK;
         if (this.getTileStatus().equals(TileStatus.L_PIPE) || this.getTileStatus().equals(TileStatus.PIPE)) {
             g2d.rotate(Math.toRadians(this.getAngle()),(double) getWidth()/2,(double) getHeight()/2);
             if (this.getTileStatus().equals(TileStatus.PIPE)) {
-                drawStraightPipe(g);
+                drawStraightPipe(g,primaryColor,secondaryColor);
             } else {
-                drawLPipe(g);
+                drawLPipe(g,primaryColor,secondaryColor);
             }
         }
     }

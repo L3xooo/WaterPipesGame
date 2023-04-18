@@ -67,8 +67,10 @@ public class GameLogic extends UniversalAdapter {
 
     public void paintValidTiles(ArrayList<Tile> validTiles) {
         for (Tile tile : validTiles) {
-            tile.setBackground(Color.green);
+            tile.setValidTile(true);
         }
+        this.getGameBoard().repaint();
+        this.getGameBoard().revalidate();
     }
 
     private boolean checkPreviousPipe(Tile prevTile,ArrayList<Tile> validTiles,int angle) {
@@ -238,12 +240,12 @@ public class GameLogic extends UniversalAdapter {
     }
     @Override
     public void mouseClicked(MouseEvent e) {
-        this.getGameBoard().deleteBackgroundColor();
         Component currentComponent = this.getGameBoard().getComponentAt(e.getX(),e.getY());
         if (!(currentComponent instanceof Tile)) {
             return;
         }
         if (((Tile) currentComponent).isPlayable()) {
+            this.getGameBoard().deletePipeColor();
             ((Tile) currentComponent).increaseAngle();
             currentComponent.repaint();
         }

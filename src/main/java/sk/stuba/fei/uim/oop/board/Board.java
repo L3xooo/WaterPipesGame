@@ -21,9 +21,6 @@ public class Board extends JPanel {
 
     public void setEndTile(Tile endTile) {
         this.endTile = endTile;
-        this.endTile.setTileStatus(TileStatus.PIPE);
-        this.endTile.setBackground(Color.PINK);
-        this.endTile.add(new JLabel("END"));
     }
 
     private void setStartTile(Tile startTile) {
@@ -48,10 +45,8 @@ public class Board extends JPanel {
     private void generatePipes() {
         List<Tile> visitedTiles = new ArrayList<>();
         int startRow = getRandom().nextInt(this.getBoard().length);
-        boolean chooseNumber = getRandom().nextBoolean();
-        int startCol = chooseNumber ? 0 : this.getBoard().length-1;
-        int finalCol = chooseNumber ? this.getBoard().length-1 : 0;
-        Tile startTile = this.getBoard()[startRow][startCol];
+        int finalRow = getRandom().nextInt(this.getBoard().length);
+        Tile startTile = this.getBoard()[startRow][0];
         setStartTile(startTile);
 
         int visitedCells = 1;
@@ -62,7 +57,7 @@ public class Board extends JPanel {
             if (!this.getPipesRoute().contains(startTile)){
                 this.getPipesRoute().push(startTile);
             }
-            if (startTile.getCol() == finalCol) {
+            if (startTile.getCol() == this.getBoard().length-1 && startTile.getRow() == finalRow) {
                 setEndTile(startTile);
                 break;
             }
@@ -112,39 +107,37 @@ public class Board extends JPanel {
         }
     }
 
-    public void deleteBackgroundColor() {
+    public void deletePipeColor() {
         for (int a = 0; a < this.getPipesRoute().size()-1; a++) {
-            this.getPipesRoute().get(a).setBackground(new Color(208, 219, 219));
-            if (this.getPipesRoute().get(a) == this.getStartTile()) {
-                this.getStartTile().setBackground(Color.ORANGE);
-            }
+            this.getPipesRoute().get(a).setValidTile(false);
         }
+        this.repaint();
+        this.revalidate();
     }
 
     private void setTileStatus() {
-        for (int a = 0; a < this.getPipesRoute().size()-1; a++) {
+        for (int a = 0; a < this.getPipesRoute().size(); a++) {
             Tile tile = this.getPipesRoute().get(a);
-            if (this.getPipesRoute().indexOf(tile) == 0) {
-                Tile nextTile = this.getPipesRoute().get(1);
-                if (nextTile.getRow() != tile.getRow()) {
+            if (tile == this.getStartTile()) {
+                Tile next = this.getPipesRoute().get(1);
+                if (tile.getRow() != next.getRow()) {
                     tile.setTileStatus(TileStatus.L_PIPE);
-                    if (tile.getCol() == 0) {
-                        if (nextTile.getRow() == tile.getRow()+1) {
-                            tile.setAngle(270);
-                        } else {
-                            tile.setAngle(0);
-                        }
-                    } else {
-                        if (nextTile.getRow() == tile.getRow()+1) {
-                            tile.setAngle(180);
-                        } else {
-                            tile.setAngle(90);
-                        }
-                    }
+                    tile.setAngle(next.getRow() > tile.getRow() ? 270 : 0 );
                 } else {
                     tile.setTileStatus(TileStatus.PIPE);
                 }
-                tile.setBackground(Color.ORANGE);
+                tile.setBackground(Color.orange);
+                continue;
+            }
+            if (tile == this.getEndTile()) {
+                Tile next = this.getPipesRoute().get(a-1);
+                if (tile.getRow() != next.getRow()) {
+                    tile.setTileStatus(TileStatus.L_PIPE);
+                    tile.setAngle(next.getRow() > tile.getRow() ? 180 : 90 );
+                } else {
+                    tile.setTileStatus(TileStatus.PIPE);
+                }
+                tile.setBackground(Color.CYAN);
                 continue;
             }
             Tile nextTile = this.getPipesRoute().get(a+1);
