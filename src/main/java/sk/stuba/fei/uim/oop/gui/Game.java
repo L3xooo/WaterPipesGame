@@ -40,10 +40,9 @@ public class Game{
         slider.setPaintLabels(true);
         slider.addChangeListener(gameLogic);
 
-        sideMenu.add(gameLogic.getBoardSizeLabel());
+        sideMenu.add(gameLogic.getBoardLabel());
         sideMenu.add(restartButton);
         sideMenu.add(slider);
-        sideMenu.add(gameLogic.getCurrentLevelLabel());
         sideMenu.add(checkPipeButton);
         gameWindow.add(sideMenu,BorderLayout.SOUTH);
         gameWindow.setVisible(true);

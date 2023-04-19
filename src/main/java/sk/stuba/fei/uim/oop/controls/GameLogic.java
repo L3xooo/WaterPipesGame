@@ -24,9 +24,8 @@ public class GameLogic extends UniversalAdapter {
     private JFrame gameWindow;
     private Board gameBoard;
     private int currentBoardSize;
-    private JLabel currentLevelLabel;
     private int currentLevel;
-    private JLabel boardSizeLabel;
+    private JLabel boardLabel;
 
     public GameLogic(JFrame gameWindow) {
         this.gameWindow = gameWindow;
@@ -34,24 +33,15 @@ public class GameLogic extends UniversalAdapter {
         this.initializeBoard(currentBoardSize);
         this.gameWindow.add(this.gameBoard);
         this.currentLevel = INITIAL_BOARD_LEVEL;
-        this.currentLevelLabel = new JLabel();
-        this.boardSizeLabel = new JLabel();
-        updateCurrentLevelLabel();
-        updateBoardSizeLabel();
+        this.boardLabel = new JLabel();
+        updateLabel();
     }
 
-    private void updateBoardSizeLabel() {
-        this.boardSizeLabel.setText("Board size : " + currentBoardSize);
+    private void updateLabel() {
+        this.boardLabel.setText("Board size : " + currentBoardSize + " Level: " + currentLevel);
         this.gameWindow.revalidate();
         this.gameWindow.repaint();
     }
-
-    private void updateCurrentLevelLabel() {
-        this.currentLevelLabel.setText("Level : " + currentLevel );
-        this.gameWindow.revalidate();
-        this.gameWindow.repaint();
-    }
-
     private void initializeBoard(int dimension) {
         this.gameBoard = new Board(dimension);
         this.gameBoard.addMouseListener(this);
@@ -62,7 +52,7 @@ public class GameLogic extends UniversalAdapter {
         this.gameWindow.remove(this.getGameBoard());
         this.initializeBoard(this.getCurrentBoardSize());
         this.gameWindow.add(this.getGameBoard());
-        this.updateCurrentLevelLabel();
+        this.updateLabel();
     }
 
     public void paintValidTiles(ArrayList<Tile> validTiles) {
@@ -239,7 +229,7 @@ public class GameLogic extends UniversalAdapter {
         this.getGameBoard().repaint();
     }
     @Override
-    public void mouseClicked(MouseEvent e) {
+    public void mousePressed(MouseEvent e) {
         Component currentComponent = this.getGameBoard().getComponentAt(e.getX(),e.getY());
         if (!(currentComponent instanceof Tile)) {
             return;
@@ -254,7 +244,7 @@ public class GameLogic extends UniversalAdapter {
     public void stateChanged(ChangeEvent e) {
         if (this.getCurrentBoardSize() != ((JSlider) e.getSource()).getValue()) {
             this.setCurrentBoardSize(((JSlider) e.getSource()).getValue());
-            this.updateBoardSizeLabel();
+            this.updateLabel();
             this.setCurrentLevel(1);
             this.restartGame();
         }

@@ -24,7 +24,6 @@ public class Tile extends JPanel{
         this.validTile = false;
         this.neighbours = new ArrayList<>();
         this.tileStatus = TileStatus.EMPTY;
-        this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         this.setBackground(new Color(208, 219, 219));
         this.row = row;
         this.col = col;
