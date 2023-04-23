@@ -61,7 +61,7 @@ public class GameLogic extends UniversalAdapter {
         this.updateLabel();
     }
 
-    public void paintValidTiles(ArrayList<Tile> validTiles) {
+    private void paintValidTiles(ArrayList<Tile> validTiles) {
         for (Tile tile : validTiles) {
             tile.setValidTile(true);
         }
