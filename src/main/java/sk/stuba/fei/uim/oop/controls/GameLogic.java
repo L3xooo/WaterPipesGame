@@ -4,8 +4,10 @@ package sk.stuba.fei.uim.oop.controls;
 import lombok.Getter;
 import lombok.Setter;
 import sk.stuba.fei.uim.oop.board.Board;
-import sk.stuba.fei.uim.oop.board.Tile;
-import sk.stuba.fei.uim.oop.board.TileStatus;
+import sk.stuba.fei.uim.oop.tile.KneePipe;
+import sk.stuba.fei.uim.oop.tile.Pipe;
+import sk.stuba.fei.uim.oop.tile.StraightPipe;
+import sk.stuba.fei.uim.oop.tile.Tile;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -15,16 +17,20 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-@Setter @Getter
 public class GameLogic extends UniversalAdapter {
     private static final String RESTART_BUTTON_NAME = "Restart";
     private static final String CHECK_BUTTON_NAME = "Check";
     private static final int INITIAL_BOARD_SIZE = 8;
     private static final int INITIAL_BOARD_LEVEL = 1;
+    @Getter
     private JFrame gameWindow;
+    @Getter
     private Board gameBoard;
+    @Getter @Setter
     private int currentBoardSize;
+    @Getter @Setter
     private int currentLevel;
+    @Getter
     private JLabel boardLabel;
 
     public GameLogic(JFrame gameWindow) {
@@ -38,7 +44,7 @@ public class GameLogic extends UniversalAdapter {
     }
 
     private void updateLabel() {
-        this.boardLabel.setText("Board size : " + currentBoardSize + " Level: " + currentLevel);
+        this.boardLabel.setText("Board size : " + this.getCurrentBoardSize() + " Level: " + this.getCurrentLevel());
         this.gameWindow.revalidate();
         this.gameWindow.repaint();
     }
@@ -63,8 +69,8 @@ public class GameLogic extends UniversalAdapter {
         this.getGameBoard().revalidate();
     }
 
-    private boolean checkPreviousPipe(Tile prevTile,ArrayList<Tile> validTiles,int angle) {
-        if (prevTile.getAngle() != angle) {
+    private boolean checkPreviousStraightPipe(Tile prevTile,ArrayList<Tile> validTiles,int angle) {
+        if (((Pipe)prevTile).getAngle() != angle) {
             return false;
         } else {
             if (!validTiles.contains(prevTile)) {
@@ -74,22 +80,22 @@ public class GameLogic extends UniversalAdapter {
         }
     }
 
-    private boolean checkPreviousLPipe(Tile prevtile,ArrayList<Tile> validTiles,int angle1,int angle2) {
-        if (prevtile.getAngle() != angle1 && prevtile.getAngle() != angle2) {
+    private boolean checkPreviousKneePipe(Pipe prevTile, ArrayList<Tile> validTiles, int angle1, int angle2) {
+        if (prevTile.getAngle() != angle1 && prevTile.getAngle() != angle2) {
             return false;
         } else {
-            if (!validTiles.contains(prevtile)) {
-                validTiles.add(prevtile);
+            if (!validTiles.contains(prevTile)) {
+                validTiles.add(prevTile);
             }
             return true;
         }
     }
 
-    private boolean checkActualPipe(Tile actualTile,int angle) {
-        return actualTile.getAngle() == angle;
+    private boolean checkActualStraightPipe(Tile actualTile,int angle) {
+        return ((Pipe)actualTile).getAngle() == angle;
     }
 
-    private boolean checkActualLPipe(Tile actualTile,int angle1,int angle2) {
+    private boolean checkActualKneePipe(Pipe actualTile,int angle1,int angle2) {
         return actualTile.getAngle() == angle1 || actualTile.getAngle() == angle2;
     }
 
@@ -112,8 +118,8 @@ public class GameLogic extends UniversalAdapter {
             angle2 = 90;
         }
 
-        if (prevTile.getTileStatus().equals(TileStatus.PIPE)) {
-            if (!checkPreviousPipe(prevTile, validTiles, straightPipeAngle)) {
+        if (prevTile instanceof StraightPipe) {
+            if (!checkPreviousStraightPipe(prevTile, validTiles, straightPipeAngle)) {
                 countInvalid++;
             } else {
                 if(checkActualTileStatus(actualTile,div,straightPipeAngle,angle1,angle2)) {
@@ -122,10 +128,10 @@ public class GameLogic extends UniversalAdapter {
                     countInvalid++;
                 }
             }
-        } else if (prevTile.getTileStatus().equals(TileStatus.L_PIPE)) {
+        } else if (prevTile instanceof KneePipe) {
             int expectedStartAngle = (div > 0) ? 180 : 0;
             int expectedEndAngle = (div > 0) ? angle2 : angle1;
-            if (!checkPreviousLPipe(prevTile,validTiles,expectedStartAngle,expectedEndAngle)) {
+            if (!checkPreviousKneePipe((Pipe)prevTile,validTiles,expectedStartAngle,expectedEndAngle)) {
                 countInvalid++;
             } else {
                 if(checkActualTileStatus(actualTile,div,straightPipeAngle,angle1,angle2)) {
@@ -139,12 +145,12 @@ public class GameLogic extends UniversalAdapter {
     }
 
     private boolean checkActualTileStatus(Tile actualTile,int div,int straightPipeAngle,int angle1,int angle2) {
-        if (actualTile.getTileStatus().equals(TileStatus.PIPE)) {
-            return checkActualPipe(actualTile, straightPipeAngle);
+        if (actualTile instanceof StraightPipe) {
+            return checkActualStraightPipe(actualTile, straightPipeAngle);
         } else {
             int expectedLPipeStartAngle = (div > 0) ? 0 : 180;
             int expectedLPipeEndAngle = (div > 0) ? angle1 : angle2;
-            return checkActualLPipe(actualTile, expectedLPipeStartAngle, expectedLPipeEndAngle);
+            return checkActualKneePipe((Pipe)actualTile, expectedLPipeStartAngle, expectedLPipeEndAngle);
         }
     }
     private void checkPipes() {
@@ -157,7 +163,7 @@ public class GameLogic extends UniversalAdapter {
                 restartGame();
             }
             countInvalid = 0;
-            for (Tile actualTile : prevTile.getNeighbours()) {
+            for (Tile actualTile : ((Pipe)prevTile).getNeighbours()) {
                 if (validTiles.contains(actualTile)) {
                     countInvalid++;
                     continue;
@@ -168,7 +174,7 @@ public class GameLogic extends UniversalAdapter {
                     break;
                 }
             }
-            if (countInvalid == prevTile.getNeighbours().size()) {
+            if (countInvalid == ((Pipe)prevTile).getNeighbours().size()) {
                 if (!validTiles.contains(prevTile)) {
                     validTiles.add(prevTile);
                 }
@@ -187,6 +193,7 @@ public class GameLogic extends UniversalAdapter {
         }
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             this.getGameWindow().dispose();
+            System.exit(0);
         }
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             checkPipes();
@@ -234,10 +241,12 @@ public class GameLogic extends UniversalAdapter {
         if (!(currentComponent instanceof Tile)) {
             return;
         }
-        if (((Tile) currentComponent).isPlayable()) {
-            this.getGameBoard().deletePipeColor();
-            ((Tile) currentComponent).increaseAngle();
-            currentComponent.repaint();
+        if (currentComponent instanceof Pipe) {
+            if (currentComponent != this.getGameBoard().getEndTile() && currentComponent != this.getGameBoard().getStartTile()) {
+                this.getGameBoard().deletePipeColor();
+                ((Tile) currentComponent).increaseAngle();
+                currentComponent.repaint();
+            }
         }
     }
     @Override
