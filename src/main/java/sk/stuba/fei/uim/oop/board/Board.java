@@ -96,20 +96,22 @@ public class Board extends JPanel {
         for (int a = 0; a < this.getBoard().length; a++) {
             for (int b = 0; b < this.getBoard().length; b++) {
                 Tile tile = this.getBoard()[a][b];
+                List<Tile> tileNeighbours = new ArrayList<>();
                 if (tile instanceof Pipe) {
                     if (tile.getRow() > 0 && this.getBoard()[tile.getRow()-1][tile.getCol()] instanceof Pipe) {
-                        tile.setNeighbours(this.getBoard()[tile.getRow()-1][tile.getCol()]);
+                        tileNeighbours.add(this.getBoard()[tile.getRow()-1][tile.getCol()]);
                     }
                     if (tile.getRow() < this.getBoard().length-1 && this.getBoard()[tile.getRow()+1][tile.getCol()] instanceof Pipe) {
-                        tile.setNeighbours(this.getBoard()[tile.getRow()+1][tile.getCol()]);
+                        tileNeighbours.add(this.getBoard()[tile.getRow()+1][tile.getCol()]);
                     }
                     if (tile.getCol() > 0 && this.getBoard()[tile.getRow()][tile.getCol()-1] instanceof Pipe) {
-                        tile.setNeighbours(this.getBoard()[tile.getRow()][tile.getCol()-1]);
+                        tileNeighbours.add(this.getBoard()[tile.getRow()][tile.getCol()-1]);
                     }
                     if (tile.getCol() < this.getBoard().length-1 && this.getBoard()[tile.getRow()][tile.getCol()+1] instanceof Pipe) {
-                        tile.setNeighbours(this.getBoard()[tile.getRow()][tile.getCol()+1]);
+                        tileNeighbours.add(this.getBoard()[tile.getRow()][tile.getCol()+1]);
                     }
                 }
+                tile.setNeighbours(tileNeighbours);
             }
         }
     }

@@ -2,9 +2,10 @@ package sk.stuba.fei.uim.oop.tile;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+
 
 public class Tile extends JPanel {
     @Getter
@@ -21,7 +22,7 @@ public class Tile extends JPanel {
     }
 
     public void setValidTile(boolean value){}
-    public void setNeighbours(Tile neighbourTile){}
+    public void setNeighbours(List<Tile> neighbours){}
     public void increaseAngle(){}
     @Override
     protected void paintComponent(Graphics g) {

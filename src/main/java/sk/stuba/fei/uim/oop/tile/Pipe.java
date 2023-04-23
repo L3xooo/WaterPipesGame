@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 public abstract class Pipe extends Tile{
-    @Getter
-    private final List<Tile> neighbours;
+    @Getter @Setter
+    private List<Tile> neighbours;
     @Getter @Setter
     private int angle;
     @Getter
@@ -22,9 +22,6 @@ public abstract class Pipe extends Tile{
         this.rand = new Random();
         this.validTile = false;
         this.angle = 0;
-    }
-    public void setNeighbours(Tile neighbourTile){
-        this.neighbours.add(neighbourTile);
     }
     @Override
     protected void paintComponent(Graphics g) {
